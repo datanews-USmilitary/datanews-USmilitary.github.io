@@ -1,0 +1,17 @@
+{
+  "name": "military-data-visualization",
+  "version": "1.0.0",
+  "description": "全球军事数据分析数据新闻网站",
+  "scripts": {
+    "start": "live-server",
+    "build": "echo 'No build process required for static site'"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "not dead",
+    "ie >= 11"
+  ]
+}

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US Military - Data Journalism</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1a365d', // Deep blue - represents authority and stability
+                        secondary: '#b71c1c', // Red - represents strength and sacrifice
+                        neutral: '#f7fafc', // Light gray - for backgrounds
+                        dark: '#1a202c', // Dark gray - for text
+                        military: {
+                            100: '#f0f4f8',
+                            200: '#d9e2ec',
+                            300: '#bcccdc',
+                            400: '#9fb3c8',
+                            500: '#829ab1',
+                            600: '#627d98',
+                            700: '#486581',
+                            800: '#334e68',
+                            900: '#243b53',
+                        },
+                        service: {
+                            army: '#4d2c57',
+                            navy: '#0a6ed1',
+                            airforce: '#0096d6',
+                            marines: '#d4292f',
+                            coastguard: '#0081c6',
+                            spaceforce: '#003459',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                        data: ['Roboto Mono', 'monospace'],
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom Styles -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            .chart-container {
+                position: relative;
+                margin: auto;
+                height: 400px;
+                width: 100%;
+            }
+            .timeline-item {
+                transition: all 0.5s ease;
+            }
+            .timeline-item:hover {
+                transform: scale(1.02);
+                z-index: 10;
+            }
+            .personnel-dot {
+                transition: all 0.2s ease;
+            }
+            .personnel-dot:hover {
+                transform: scale(1.3);
+                filter: brightness(1.2);
+            }
+            .military-rank {
+                transition: all 0.3s ease;
+            }
+            .military-rank:hover {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+</head>
+<body class="bg-neutral text-dark font-sans">
+<!-- Header/Navigation -->
+<header class="sticky top-0 z-50 bg-primary text-white shadow-lg">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-shield text-2xl text-secondary"></i>
+                <h1 class="text-xl md:text-2xl font-bold font-heading">US Military Data Journalism</h1>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#lead" class="font-medium hover:text-secondary transition-colors duration-200">导语</a>
+                <a href="#history" class="font-medium hover:text-secondary transition-colors duration-200">战争历史</a>
+                <a href="#cost" class="font-medium hover:text-secondary transition-colors duration-200">鲜血与美元</a>
+                <a href="#arms" class="font-medium hover:text-secondary transition-colors duration-200">全球军售</a>
+                <a href="#crisis" class="font-medium hover:text-secondary transition-colors duration-200">信任危机</a>
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden text-white text-xl" id="mobile-menu-button">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div class="md:hidden hidden mt-4 pb-2" id="mobile-menu">
+            <a href="#lead" class="block py-2 font-medium hover:text-secondary transition-colors duration-200">导语</a>
+            <a href="#history" class="block py-2 font-medium hover:text-secondary transition-colors duration-200">战争历史</a>
+            <a href="#cost" class="block py-2 font-medium hover:text-secondary transition-colors duration-200">鲜血与美元</a>
+            <a href="#arms" class="block py-2 font-medium hover:text-secondary transition-colors duration-200">全球军售</a>
+            <a href="#crisis" class="block py-2 font-medium hover:text-secondary transition-colors duration-200">信任危机</a>
+        </div>
+    </div>
+</header>
+
+<main>
+    <!-- Lead Section -->
+    <section id="lead" class="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="images/封面.jpeg" alt="美国军事力量展示" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-dark/60"></div> <!-- 保持暗色叠加层 -->
+        </div>
+
+        <div class="container mx-auto px-4 z-10 text-center">
+            <h2 class="text-[clamp(2.5rem,6vw,4rem)] font-bold font-heading text-white text-shadow mb-6">
+                2万亿成本与-1.5信任度的失衡账单
+            </h2>
+            <p class="text-[clamp(1rem,3vw,1.5rem)] text-white text-shadow max-w-3xl mx-auto mb-8">
+                美国的全球军事干预之路
+            </p>
+        </div>
+
+        <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-neutral to-transparent"></div>
+    </section>
+
+    <!-- Introduction with Image -->
+    <section class="py-16 bg-neutral">
+        <div class="container mx-auto px-4">
+            <div class="mb-10">
+                <p class="text-gray-700 mb-6 text-lg leading-relaxed">
+                    2025年4月8日，据阿富汗在线新闻服务 Khaama Press 报道称，应塔利班政府的要求，美国已经重新控制位于阿富汗东部、喀布尔以北的巴格拉姆空军基地。这座四年前被美军切断电源仓促遗弃的军事堡垒，或将迎来华盛顿的重返。
+                </p>
+                <p class="text-gray-700 mb-6 text-lg leading-relaxed">
+                    2021年7月2日凌晨，最后一批驻阿美军在未通知阿富汗指挥官的情况下撤离，350万件装备——从报废的装甲车到关押5000名囚犯的监狱系统——被遗弃在这片焦土上。
+                </p>
+
+                <!-- 新增：图片放置在此处 -->
+                <div class="rounded-xl overflow-hidden shadow-2xl mb-8">
+                    <img src="images/图1.png" alt="阿富汗战争后果" class="w-full h-auto transform hover:scale-105 transition-all duration-700">
+                </div>
+
+                <p class="text-gray-700 mb-6 text-lg leading-relaxed">
+                    此地曾见证美国最漫长的非对称战争。在投入2万亿美元投入、阵亡2430名士兵后，这场战争终以塔利班重掌喀布尔告终，累计有3万多名阿富汗平民被美军杀死或因美军带来的战乱而死亡，另有6万多名平民受伤，约1100万人沦为难民，近3.3万儿童在战争中丧生或受伤。
+                </p>
+                <p class="text-gray-700 mb-6 text-lg leading-relaxed">
+                    而这仅仅是美国对海外军事输出的一个样本。2023年，美国对外军售额飙升至2380亿美元，较2001年暴涨470%。美军撤离阿富汗后，军工机器从未停止在全球冲突带的循环输出。四年间，欧洲盟友为填补援乌军备缺口购入千亿武器；在加沙冲突中，以色列在加沙行动中投掷了2.9万吨美制炸弹。随着对外军售额飙升和多地冲突持续，美军及其盟友的军事足迹遍布37个冲突地区，战争与军备扩散的阴影正愈加浓重。
+                </p>
+                <p class="text-gray-700 text-lg leading-relaxed">
+                    然而在如此庞大的军事投入面前，2024年美国全球净好感度从年初的"+20"暴跌至"-1.5"。美国以军事存在维护全球秩序的战略构想，构成一张由2万亿财政窟窿与-1.5信任赤字构成的失衡账单。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- From Spanish-American War to Counterterrorism Era -->
+    <section id="history" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold font-heading text-primary text-center mb-12">
+                从美西战争到反恐时代：美国海外用兵百年回望
+            </h2>
+
+            <!-- 历史文字内容 -->
+            <div class="prose prose-lg max-w-none mb-12">
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    自1898年美西战争开启海外扩张序幕，美国凭借其不断增长的军事与经济实力，逐步确立了其全球性的强权地位。一个多世纪以来，通过深度介入国际事务的军事干预行动，美国深刻重塑了地缘政治格局，亦在被干预国家留下复杂而深远的历史印记。
+                </p>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    十九世纪末，"缅因号"战舰在哈瓦那港的爆炸，成为美国击败老牌殖民帝国西班牙的关键契机。此役不仅将菲律宾、关岛、波多黎各纳入美国控制，更标志着其势力范围首次大规模跨越太平洋与加勒比海，奠定了全球干预的雏形。
+                </p>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    进入二十世纪冷战时期，意识形态对抗驱动美国卷入区域冲突。1950年朝鲜战争爆发，美国主导的"联合国军"介入，三年战争造成惨重人员伤亡与基础设施破坏，对半岛地区造成毁灭性打击。其后，美国在越南陷入长达近二十年的战争泥潭，大规模军事介入与战略失误导致该国数百万平民丧生、社会结构瓦解，最终美军于1975年黯然撤离，留下一片战争废墟。
+                </p>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    冷战结束后，美国军事行动逐渐转向高科技、速战速决的模式。1991年，针对伊拉克入侵并吞并科威特，美国领导多国部队发起"沙漠风暴"行动。1999年，北约对南联盟空袭因绕开联合国安理会授权，在"人道主义干预"名义下造成大量平民伤亡与基础设施损毁，引发了国际法层面的持久争议。
+                </p>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    迈入二十一世纪，"9·11"恐怖袭击彻底改变了美国的安全战略。随之而来的是阿富汗战争，美国以清剿恐怖主义为名，却深陷"帝国坟场"二十年，导致数万平民死亡、超千万人流离失所。2003年，基于伊拉克拥有大规模杀伤性武器（WMD）的情报评估，美国领导联军发动了伊拉克战争。后续调查证实相关关键情报存在重大缺陷。2011年叙利亚内战爆发后，美国参与了针对极端组织"伊斯兰国"（ISIS）的多国军事行动，并向部分反对派武装提供支持。
+                </p>
+            </div>
+
+            <!-- Sliding Images - 保持原有结构，但优化边距 -->
+            <div class="relative mb-12">
+                <div class="overflow-x-auto pb-8" id="history-slider">
+                    <div class="flex space-x-6 w-max">
+                        <!-- Image Card 1 -->
+                        <div class="timeline-item bg-white rounded-lg shadow-lg overflow-hidden w-80 flex-shrink-0">
+                            <div class="h-60 overflow-hidden">
+                                <img src="images/korean-war.jpg" alt="朝鲜战争" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold font-heading text-primary mb-2">朝鲜战争 (1950-1953)</h3>
+                                <p class="text-gray-600">
+                                    朝鲜半岛南北分裂，北方的中国和苏联支持的朝鲜民主主义人民共和国入侵南方。美国主导的"联合国军"介入，战争造成惨重人员伤亡与基础设施破坏，半岛局势持续紧张。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Image Card 2 -->
+                        <div class="timeline-item bg-white rounded-lg shadow-lg overflow-hidden w-80 flex-shrink-0">
+                            <div class="h-60 overflow-hidden">
+                                <img src="images/vietnam-war.jpg" alt="越南战争" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold font-heading text-primary mb-2">越南战争 (1955-1975)</h3>
+                                <p class="text-gray-600">
+                                    美国为阻止共产主义扩张，支持南越政府，最终大规模军事介入。长达近二十年的战争导致数百万平民丧生，社会结构瓦解，美军于1975年撤离，留下战争废墟。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Image Card 3 -->
+                        <div class="timeline-item bg-white rounded-lg shadow-lg overflow-hidden w-80 flex-shrink-0">
+                            <div class="h-60 overflow-hidden">
+                                <img src="images/gulf-war.jpg" alt="海湾战争" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold font-heading text-primary mb-2">海湾战争 (1990-1991)</h3>
+                                <p class="text-gray-600">
+                                    伊拉克入侵科威特，美国组建多国部队进行军事干预。成功驱逐伊拉克军队，展示高科技战争能力，但后续对中东局势的影响复杂。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Image Card 4 -->
+                        <div class="timeline-item bg-white rounded-lg shadow-lg overflow-hidden w-80 flex-shrink-0">
+                            <div class="h-60 overflow-hidden">
+                                <img src="images/afghanistan-war.jpg" alt="阿富汗战争" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold font-heading text-primary mb-2">阿富汗战争 (2001-2021)</h3>
+                                <p class="text-gray-600">
+                                    911恐怖袭击后，美国以清剿恐怖主义为名展开军事行动。深陷"帝国坟场"二十年，导致数万平民死亡、超千万人流离失所。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Image Card 5 -->
+                        <div class="timeline-item bg-white rounded-lg shadow-lg overflow-hidden w-80 flex-shrink-0">
+                            <div class="h-60 overflow-hidden">
+                                <img src="images/iraq-war.jpg" alt="伊拉克战争" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold font-heading text-primary mb-2">伊拉克战争 (2003-2011)</h3>
+                                <p class="text-gray-600">
+                                    基于对伊拉克拥有大规模杀伤性武器的情报评估，美国领导联军发动战争。后续调查证实情报缺陷，战争导致严重人道危机和地区动荡。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Image Card 6 -->
+                        <div class="timeline-item bg-white rounded-lg shadow-lg overflow-hidden w-80 flex-shrink-0">
+                            <div class="h-60 overflow-hidden">
+                                <img src="images/syria-war.jpg" alt="叙利亚战争" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold font-heading text-primary mb-2">叙利亚战争 (2011至今)</h3>
+                                <p class="text-gray-600">
+                                    叙利亚内战爆发后，美国介入并支持反对派武装，开展打击"伊斯兰国"的军事行动。局势复杂化，持续人道危机，影响地区稳定。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <button class="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-primary rounded-full p-3 shadow-lg z-10 transition-all duration-300" id="prev-history">
+                    <i class="fa fa-chevron-left"></i>
+                </button>
+                <button class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-primary rounded-full p-3 shadow-lg z-10 transition-all duration-300" id="next-history">
+                    <i class="fa fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- 最后一段文字 - 确保与其他内容布局一致 -->
+            <div class="prose prose-lg max-w-none mb-12">
+                <p class="text-gray-700 leading-relaxed">
+                    特朗普重返白宫之后，美国似乎一直有意缓和与塔利班之间的关系，传递出明显的信号——2021年从喀布尔机场的撤离，绝非美国对外军事输出的终点。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blood and Dollars Section -->
+    <section id="cost" class="py-16 bg-neutral">
+        <div class="container mx-auto px-4 py-8">
+            <!-- 标题区域 -->
+            <div class="text-center mb-12">
+                <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold font-heading text-primary mb-4">
+                    鲜血与美元
+                </h1>
+                <p class="text-[clamp(1.1rem,2vw,1.3rem)] text-gray-600 max-w-3xl mx-auto">
+                    作为全球军费投入最高的国家，美国2023年军事支出达9160亿美元，占全球总额的37%。这一体量超过其后九个国家军费总和，成为其维持全球军事存在的底气。
+                </p>
+            </div>
+
+            <!-- 核心数据卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                <div class="bg-white rounded-xl shadow-lg p-6 transform hover:-translate-y-2 transition-all duration-300">
+                    <div class="text-4xl font-bold text-primary mb-2">9160亿</div>
+                    <div class="text-gray-600">2023年美国军费支出（美元）</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 transform hover:-translate-y-2 transition-all duration-300">
+                    <div class="text-4xl font-bold text-primary mb-2">37%</div>
+                    <div class="text-gray-600">占全球军费总额比例</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 transform hover:-translate-y-2 transition-all duration-300">
+                    <div class="text-4xl font-bold text-primary mb-2">14万亿</div>
+                    <div class="text-gray-600">20世纪主要战争直接开支（2025年美元价值）</div>
+                </div>
+            </div>
+
+            <!-- 正文内容 -->
+            <!-- 正文内容 -->
+            <div class="prose prose-lg max-w-none mb-12">
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    美国如此庞大的军费投入，账单几何？根据国会研究服务处数据，伊拉克战争持续18年，阿富汗战争达20年，两场战争总时长达到二战（5年）的7.6倍，海湾战争（0.7年）的54倍多。
+                </p>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    对外军事行动周期的不断延长，与法律授权机制直接关联。2001年通过的《授权使用军事力量法案》（AUMF）赋予总统不受时效限制的动武权限。该法案最初针对“9·11”事件策划者，但后续被用于在22个国家开展军事行动。法律学者查尔斯·史蒂文森在国会听证会中指出：“宽泛授权条款使军事行动脱离时效审查机制，形成自动延续效应。”
+                </p>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    这种行动模式的延续性正在面临新的挑战。2023年国防战略文件承认：“长期前沿部署在经济可持续性与战略灵活性方面遭遇双重压力。”
+                </p>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    战争不仅带来人员伤亡，也造成了巨大的经济代价。美国在历次战争中的投入和损失是衡量其军事政策影响的重要指标。
+                </p>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    据统计，美国在20世纪的主要战争中，直接军事开支超过了14万亿美元（以2025年美元价值计算）。这些开支包括军事装备采购、人员薪酬、后勤保障等多个方面。
+                </p>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    除了直接的军事开支，战争还带来了间接的经济成本，包括战后重建、退伍军人福利、债务利息等。这些间接成本往往数倍于直接军事开支。
+                </p>
+                <p class="text-gray-700 mb-12 leading-relaxed">
+                    然而，战争的最大代价往往是无法用金钱衡量的。美国在历次战争中的人员伤亡是国家和家庭的沉重负担。
+                </p>
+            </div>
+
+            <!-- 美国参战时长统计 -->
+            <div class="prose prose-lg max-w-none mb-12">
+                <h3 class="text-xl font-bold font-heading text-primary mb-6 text-center">美国参战时长统计</h3>
+                <div class="flourish-embed flourish-hierarchy" data-src="visualisation/23930892" style="max-width: 80%; margin: 0 auto;">
+                    <script src="https://public.flourish.studio/resources/embed.js"></script>
+                    <noscript>
+                        <img src="https://public.flourish.studio/visualisation/23930892/thumbnail" width="80%" alt="美国参战时长统计层级可视化" />
+                    </noscript>
+                </div>
+            </div>
+
+            <div class="prose prose-lg max-w-none mb-12">
+                <p class="text-gray-700 leading-relaxed">
+                    战争持续时间数据显示，21世纪美国的军事介入呈现长期化特征。伊拉克战争（18年）与阿富汗战争（20年）持续周期分别为二战的3.6倍和4倍，成为美国历史上最持久的军事介入。国会研究服务处报告指出，2001年《授权使用军事力量法案》赋予的广泛动武权限，客观上延长了军事行动周期。
+                </p>
+            </div>
+
+            <!-- 美国参战成本统计 -->
+            <div class="prose prose-lg max-w-none mb-12">
+                <h3 class="text-xl font-bold font-heading text-primary mb-6 text-center">美国参战成本统计</h3>
+                <div class="flourish-embed flourish-hierarchy" data-src="visualisation/23930536" style="max-width: 80%; margin: 0 auto;">
+                    <script src="https://public.flourish.studio/resources/embed.js"></script>
+                    <noscript>
+                        <img src="https://public.flourish.studio/visualisation/23930536/thumbnail" width="80%" alt="美国参战成本统计层级可视化" />
+                    </noscript>
+                </div>
+            </div>
+
+            <div class="prose prose-lg max-w-none mb-12">
+                <p class="text-gray-700 leading-relaxed">
+                    美国二战后主要军事行动的总成本经国会研究服务处通胀调整达8.43万亿美元（2023年美元值），相当于当前联邦债务的24%。其中，二战消耗5.1万亿美元居首；阿富汗战争（9920亿）与伊拉克战争（8170亿）合计占21世纪总支出的92%。成本结构呈现出明显的差异——海湾战争（1991年）以1020亿美元总成本实现日均46亿美元的高强度速决。
+                </p>
+            </div>
+
+            <div class="prose prose-lg max-w-none mb-12">
+                <!-- 阿富汗战争死亡人数图表 -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold font-heading text-primary mb-4 text-center">阿富汗战争死亡人数</h3>
+                    <div style="position: relative; padding-bottom: 55%; background-color: #f7fafd; margin: 0 auto; max-width: 90%; border-radius: 8px;">
+                        <div class="flourish-embed flourish-pictogram" data-src="visualisation/23932995" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                            <script src="https://public.flourish.studio/resources/embed.js"></script>
+                            <noscript>
+                                <img src="https://public.flourish.studio/visualisation/23932995/thumbnail" width="100%" alt="阿富汗战争人员伤亡统计（2001-2021）" />
+                            </noscript>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 以色列战争死亡人数图表 -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold font-heading text-primary mb-4 text-center">以色列战争死亡人数</h3>
+                    <div style="position: relative; padding-bottom: 55%; background-color: #f7fafd; margin: 0 auto; max-width: 90%; border-radius: 8px;">
+                        <div class="flourish-embed flourish-pictogram" data-src="visualisation/23933281" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                            <script src="https://public.flourish.studio/resources/embed.js"></script>
+                            <noscript>
+                                <img src="https://public.flourish.studio/visualisation/23933281/thumbnail" width="100%" alt="以色列战争人员伤亡统计（2023-2024）" />
+                            </noscript>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="prose prose-lg max-w-none">
+                <p class="text-gray-700 leading-relaxed">
+                    从伤亡分布结构上可以看出，军事干预的主要生命代价由被干预国民众及其武装力量承担。根据战争成本项目统计（2003-2023年），美国在伊拉克和叙利亚的军事行动造成至少54.9万人死亡。其中美军战斗人员死亡4,599人，占死亡总数约0.8%；而伊拉克与叙利亚本土人员伤亡占比超过99%，包括32.6万至34.9万平民死亡，以及9.98万至10.38万当地安全部队成员阵亡。冲突广泛，甚至波及非战斗人员，数据同时记录有291名人道工作者和357名记者遇难。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Global Arms Sales Section -->
+    <section id="arms" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold font-heading text-primary text-center mb-12">
+                更靠近对手的地方
+            </h2>
+
+            <div class="prose prose-lg max-w-none mb-12">
+                <p class="text-gray-700 leading-relaxed">
+                    据财联社报道，美国国务院表示2024年美国对外国政府的军事装备销售额同比飙升29%，达到创纪录的3187亿美元。全球地缘局势的不确定性为美国武器制造商带来了更大的市场需求，随着各国增加军费支出，如洛克希德·马丁、通用动力和诺思罗普·格鲁曼等公司股价均大幅飙升。
+                </p>
+            </div>
+
+            <!-- 2019-2024年美国对外军售收入 - 静态图表 -->
+            <!-- 2019-2024年美国对外军售收入 -->
+            <div class="prose prose-lg max-w-none mb-12">
+                <h3 class="text-xl font-bold font-heading text-primary mb-6 text-center">2019-2024年美国对外军售收入</h3>
+                <div class="flourish-embed flourish-chart" data-src="visualisation/23932407" style="max-width: 70%; margin: 0 auto;">
+                    <script src="https://public.flourish.studio/resources/embed.js"></script>
+                    <noscript>
+                        <img src="https://public.flourish.studio/visualisation/23932407/thumbnail" width="70%" alt="2019-2024年美国对外军售收入趋势图" />
+                    </noscript>
+                </div>
+            </div>
+
+            <div class="prose prose-lg max-w-none mb-12">
+                <p class="text-gray-700 leading-relaxed">
+                    2019-2021年，美国对外军售收入连续下滑：政府间销售额从2019年的553.9亿美元降至2021年348亿美元（降幅37%），主因疫情冲击供应链及对土耳其等国的军售限制。但2021年后地缘冲突激增逆转趋势。2022年俄乌冲突推动政府间销售额飙升至519亿美元，同比上升49%。2023年中东局势升温进一步拉高军售，2024年总销售额突破1179亿美元（含商业销售），创美国对外军售收入历史新高。
+                </p>
+            </div>
+
+            <!-- 2024年美国主要对外军售 - 静态地图 -->
+            <div class="prose prose-lg max-w-none mb-12">
+                <div style="position: relative; padding-bottom: 70%; margin: 0 -1.5rem;">
+                    <img src="images/数据图表6.png" alt="2024年美国主要对外军售分布地图" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; background-color: transparent;">
+                </div>
+            </div>
+
+            <div class="prose prose-lg max-w-none mb-12">
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    2024年土耳其、日本、德国占据采购额前三，盟友负担比例显著提升。值得注意的是，据澎湃新闻报道，韩国采购中大量军用装备将用于“太平洋威慑倡议”联合作战体系，韩美核作战联合声明发布，韩在安全上对美依赖加深。
+                </p>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    美国对外军售的另一个“大客户”土耳其，目前在北约中的角色以及国防战略正在受到严格审查。在此之外，据悉，2024年8月10日，土耳其前国务部长卡维特·卡格拉尔在接受T-24在线报纸采访时表示，土耳其应该将从俄罗斯购买的S-400防空系统出售，改善与美国以及其他北约盟国的关系，换取重新加入F-35战斗机项目的可能性。
+                </p>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    此外，美军在全球维持着数量庞大的海外军事基地体系，服务于其全球战略布局。军事基地是美国对外军事输出最重要的载体。作为兵力投送的跳板，军事基地降低了美军响应危机的时间成本，提升了地区控制力，也在和平时期成为与盟国安全绑定的纽带。因此，基地的分布与变动往往是战略调整最直接的信号。
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                    为了观察美国海外军事部署的重点如何发生变化，我们选取了八个关键国家作为样本：日本、韩国、澳大利亚、德国、波兰、卡塔尔、巴林和吉布提。这些国家横跨美军所划定的印太、欧洲和中央和非洲四大战略方向，是美军海外基地最密集、投入规模最大的地区之一。它们在美军的全球部署中长期占据重要位置，也反映了美国近年来战略重心的调整。
+                </p>
+            </div>
+
+            <!-- 美国军事开支趋势 -->
+            <div class="prose prose-lg max-w-none mb-12">
+                <h3 class="text-xl font-bold font-heading text-primary mb-6 text-center">2019–2025年美国在海外八国的军事建设支出</h3>
+                <div class="flourish-embed flourish-chart" data-src="visualisation/23941250" style="max-width: 80%; margin: 0 auto;">
+                    <script src="https://public.flourish.studio/resources/embed.js"></script>
+                    <noscript>
+                        <img src="https://public.flourish.studio/visualisation/23941250/thumbnail" width="80%" alt="美国军事开支趋势（2000-2024年）" />
+                    </noscript>
+                </div>
+            </div>
+
+
+            <div class="prose prose-lg max-w-none">
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    过去六年，美军海外基地布局发生明显的转变。
+                </p>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    印太地区成最大焦点。基地数量突然按下加速键，从2019年的24.7万处猛增至2024年的41万处（增长超六成）。2023年，菲律宾再向美军开放4个军事基地；2024年10月份，美国相关部门发布了一份声明草案，显示关岛拟议的导弹防御系统阵地为16个。2025年，美国海外军事基地又回调至24.5万处，撤掉部分作用不大的哨站，转向更精干的部署。
+                </p>
+
+                <!-- 2019-2025年美国在海外八国的军事基地数量 - 静态图表 -->
+                <div class="prose prose-lg max-w-none mb-12">
+                    <h3 class="text-xl font-bold font-heading text-primary mb-6 text-center">2019-2025年美国在海外八国的军事基地数量</h3>
+                    <div class="flourish-embed flourish-chart" data-src="visualisation/23941601" style="max-width: 80%; margin: 0 auto;">
+                        <script src="https://public.flourish.studio/resources/embed.js"></script>
+                        <noscript>
+                            <img src="https://public.flourish.studio/visualisation/23941601/thumbnail" width="80%" alt="美国军事人员部署统计（2015-2024年）" />
+                        </noscript>
+                    </div>
+                </div>
+
+
+            <div class="prose prose-lg max-w-none">
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    相比高歌猛进的印太地区，欧洲则迎来小幅波动，如同“小修小补”，但也不容小觑。美军在德国的基地重组并非简单缩减，而是聚焦作战效能。据法国新闻评论网站Réseau International 转载消息，六年间，德国关闭5处冷战遗留设施，每年节省维护费约4.2亿美元。此外，拉姆斯坦空军基地新增F-35A中队部署150枚战术核弹存储设施；斯图加特陆军基地扩建为欧洲美军总部，指挥网络覆盖非洲司令部。美国在2021年明确表示，它认为中国——而不是像基地组织或伊斯兰国组织这样的激进组织——是主要的国家安全挑战。态势评估可能涉及向太平洋地区进一步调动美军和资产。
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                    而作为北约东翼的“军事矛尖”，波兰基地扩张由美军直接主导，采用前沿强化的部署逻辑，形成对俄罗斯的威慑。2023至2025年新建3处陆基宙斯盾阵地，兵力同样激增，驻波美军从2019年4,500人增至2025年10,000人，含装甲旅与火箭炮营。当老旧基地谢幕、美军进驻波兰，美国欧洲军事存在的本质从未改变——它只是将身躯转向了更靠近对手的方向。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Crisis Section -->
+    <section id="crisis" class="py-16 bg-neutral">
+        <div class="container mx-auto px-4">
+            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold font-heading text-primary text-center mb-12">
+                "美式和平"的信任危机
+            </h2>
+
+            <div class="prose prose-lg max-w-none mb-12">
+                <!-- 第一段添加方框样式 -->
+                <div class="border-l-4 border-primary bg-blue-50 p-4 mb-6">
+                    <p class="text-gray-700 mb-0 leading-relaxed">
+                        美东时间6月21日17时许，在7架B-2轰炸机进入伊朗领空前，一艘美军潜艇向伊斯法罕核设施所在区域地面目标发射逾20枚战斧导弹。美国总统在推特上发文称“现在是实现和平的时刻”。
+                    </p>
+                </div>
+
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                    然而国际社会的反应却揭示了残酷现实。美国以对外军事输出维护其全球领导地位的角色——被戏称为“世界警察”——正面临前所未有的内外认同危机。这种危机不仅体现在盟友与对手的审视中，还体现在美国民众自身的认知与期望撕裂之中。
+                </p>
+
+                <p class="text-gray-700 leading-relaxed">
+                    美国民众对“全球角色”的理解存在内部矛盾。高达约八成（80%）的美国人明确支持向发展中国家提供人道主义援助，如药品、医疗用品、食品和衣物，体现了强烈的普世关怀。约六成（60%）也认可通过援助支持他国经济发展和加强民主制度建设这类“软性”干预。然而，当涉及军事援助或更间接的文化输出如资助艺术和文化活动时，公众的支持度则显著下降。这种鲜明的偏好差异揭示了一个关键问题：美国社会主流价值观更倾向于通过合作与发展的方式发挥全球影响力，而非主要依赖军事强权，与其政府长期倚重的军事输出模式南辕北辙。
+                </p>
+            </div>
+
+            <!-- 美国参与伊拉克战争的成本统计 -->
+            <div class="prose prose-lg max-w-none mb-0">
+                <h3 class="text-xl font-bold font-heading text-primary mb-6 text-center">不同类型美国对外援助上的党派分歧</h3>
+                <div style="position: relative; padding-bottom: 40%; background-color: #f7fafd; margin: 0 -1.5rem; border-radius: 8px;">
+                    <div class="flourish-embed flourish-chart" data-src="visualisation/23974499" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                        <script src="https://public.flourish.studio/resources/embed.js"></script>
+                        <noscript>
+                            <img src="https://public.flourish.studio/visualisation/23974499/thumbnail" width="100%" alt="不同类型美国对外援助上的党派分歧" />
+                        </noscript>
+                    </div>
+                </div>
+            </div>
+
+            <div class="prose prose-lg max-w-none mb-6">
+                <p class="text-gray-700 leading-relaxed">
+                    美国民众对自身国家地位变化的感知，进一步反映了这种角色困境。约一半（52%）的美国人认为近年来美国在全球的影响力正在减弱。尤为值得注意的是，这种“衰退感”在政治光谱上呈现极端分化：高达67%的民主党人认同影响力下降的观点，而共和党人中持此看法的比例仅为37%。巨大的党派分歧不仅反映了对美国外交政策绩效的迥异评价，更预示着未来政策方向可能因政党轮替而发生摇摆，继续损害美国全球角色的可信度。当近半数国民，尤其是占多数的反对党支持者，对国家影响力的基本判断趋向负面时，美国“维护世界和平”的身份在国内的合法性根基正在动摇。
+                </p>
+            </div>
+            <!-- 美国参与阿富汗战争的成本统计 -->
+            <div class="prose prose-lg max-w-none mb-12">
+                <h3 class="text-xl font-bold font-heading text-primary mb-6 text-center">美国参与阿富汗战争的成本统计</h3>
+                <div style="position: relative; padding-bottom: 55%; background-color: transparent; margin: 0 -1.5rem; border-radius: 8px;">
+                    <div class="flourish-embed flourish-chart" data-src="visualisation/23974154" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                        <script src="https://public.flourish.studio/resources/embed.js"></script>
+                        <noscript>
+                            <img src="https://public.flourish.studio/visualisation/23974154/thumbnail" width="100%" alt="美国参与阿富汗战争的成本统计（2001-2021年）" />
+                        </noscript>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-gray-700 leading-relaxed mb-8">
+                而根据“战争成本项目”的估计，美国在20年阿富汗战争中巨额的付出中包括国防部用于海外应急行动的9,330亿美元；国防部战争基本预算中另外增加的4,430亿美元；用于照顾阿富汗战争退伍军人的2,960亿美元，以及来自国务院额外的590亿美元。另外，还有5,300亿美元用于支付过去20年战争债务利息。换言之，美国纳税人为阿富汗战争已经花了大约2.261万亿美元。
+            </p>
+
+            <div class="prose prose-lg max-w-none mb-12">
+                <p class="text-gray-700 leading-relaxed">
+                    这些民意调查结果显示，美国公众对军事干预的态度正在发生变化。越来越多的人开始质疑军事手段的有效性，并呼吁采取更加谨慎的外交政策。
+                </p>
+            </div>
+
+            <!-- 新增图片与注释 -->
+            <div class="prose prose-lg max-w-none mb-8">
+                <div style="position: relative;
+              padding-bottom: 45%; /* 略微增加高度比例，提升可读性 */
+              margin: 0 -2rem; /* 扩大左右扩展范围 */
+              border-radius: 8px;
+              overflow: hidden;">
+                    <img src="images/民意图.png"
+                         alt="Changing Views of the United States"
+                         style="position: absolute;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                object-fit: contain;">
+                </div>
+                <p class="text-sm text-gray-500 italic mt-2 text-center">
+                    图片来源：Pew Research Center via U.S. News, 2025年发布
+                </p>
+            </div>
+
+            <!-- 三段文字内容 -->
+            <div class="prose prose-lg max-w-none mb-12">
+                <p class="text-gray-700 leading-relaxed mb-6">
+                    除了美国国内，军事扩张也正加速消耗美国的国际信用。2024年以来，美国全球形象正经历断崖式下跌。皮尤研究中心等机构数据显示，在24个主要国家中，19国民众对特朗普政府处理国际事务的能力“缺乏信心”或“毫无信心”，其中墨西哥不信任比例高达91%，瑞典、德国、西班牙均超80%。美国晨间咨询公司更监测到关键转折——美国全球净好感度从2024年初的“+20”暴跌至“-1.5”，创下2022年以来首次负值纪录。这张由盟友与邻国集体投下的“不信任票”，直指美国军事霸权扩张引发的深层危机。
+                </p>
+
+                <p class="text-gray-700 leading-relaxed mb-6">
+                    曾被视为美国核心盟友圈的欧洲国家，如今成为反感情绪最强烈的区域。瑞典对美国好感度骤降28%，德国、加拿大、法国分别下滑16%、20%、10%。这种疏离在军事合作领域尤为尖锐：尽管北约欧洲成员国军费开支因美国压力猛增18%，民众清醒意识到“美国援乌的钱都被美国自己赚了”——据新华社消息，瑞典斯德哥尔摩国际和平研究所10日发布报告说，2020年至2024年，美国武器在全球武器出口总额中占比升至43%，较2015年至2019年所占35%的份额呈现大幅增长。欧洲国家虽呼吁加强“防务自主”，但仍被美国武器深度捆绑。”
+                </p>
+
+                <p class="text-gray-700 leading-relaxed">
+                    当前国际社会对美国安全角色的信任度变化，连同其军事输出策略引发的盟友质疑，将考验未来全球多边机制的稳定性。美国如何平衡国内人道援助诉求与海外军事扩张的矛盾，以及盟友防务自主趋势与“美式和平”的矛盾，将持续影响国际安全架构的演进轨迹，其走向仍需置于更长周期的地缘政治变动中观察。
+                </p>
+            </div>
+        </div>
+    </section>
+
+<!-- Footer -->
+<footer class="bg-dark text-white pt-16 pb-8">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            <div>
+                <div class="flex items-center space-x-2 mb-6">
+                    <i class="fa fa-shield text-2xl text-secondary"></i>
+                    <h3 class="text-xl font-bold font-heading">US Military Data Journalism</h3>
+                </div>
+                <p class="text-gray-400 mb-6">
+                    通过数据透视美国军事历史与现状
+                </p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-facebook"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-youtube-play"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold font-heading mb-6">快速链接</h3>
+                <ul class="space-y-3">
+                    <li><a href="#lead" class="text-gray-400 hover:text-white transition-colors duration-200">导语</a></li>
+                    <li><a href="#history" class="text-gray-400 hover:text-white transition-colors duration-200">战争历史</a></li>
+                    <li><a href="#cost" class="text-gray-400 hover:text-white transition-colors duration-200">鲜血与美元</a></li>
+                    <li><a href="#arms" class="text-gray-400 hover:text-white transition-colors duration-200">全球军售</a></li>
+                    <li><a href="#crisis" class="text-gray-400 hover:text-white transition-colors duration-200">信任危机</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold font-heading mb-6">数据源</h3>
+                <ul class="space-y-3">
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">美国国防部</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">国会研究服务局</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">战争相关成本项目</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">斯德哥尔摩国际和平研究所</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">皮尤研究中心</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold font-heading mb-6">作者</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-start">
+                        <span class="text-gray-400">汪雨霖 黄心语</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-800 pt-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 text-sm mb-4 md:mb-0">
+                    © 2025 US Military Data Journalism Project. All rights reserved.
+                </p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-500 hover:text-white text-sm transition-colors duration-200">隐私政策</a>
+                    <a href="#" class="text-gray-500 hover:text-white text-sm transition-colors duration-200">使用条款</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- JavaScript -->
+<script>
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    // History slider navigation
+    const slider = document.getElementById('history-slider');
+    const prevBtn = document.getElementById('prev-history');
+    const nextBtn = document.getElementById('next-history');
+
+    prevBtn.addEventListener('click', () => {
+        slider.scrollBy({ left: -300, behavior: 'smooth' });
+    });
+
+    nextBtn.addEventListener('click', () => {
+        slider.scrollBy({ left: 300, behavior: 'smooth' });
+    });
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+
+                // Close mobile menu if open
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+            }
+        });
+    });
+    <script src="script.js"></script>
+</body>
+</html>
